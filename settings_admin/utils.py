@@ -12,3 +12,6 @@ def overwrite_settings(options):
     for k, v in options.items():
         contents = re.sub(f'^{k}\s?=.+$', f'{k} = {repr(v)}', contents, re.MULTILINE)
         setattr(settings, k, v)
+    with open(m.__file__, 'w') as f:
+        f.write(contents)
+
