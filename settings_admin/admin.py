@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 from django.utils.text import gettext_lazy as _
 from django.forms import MediaDefiningClass
 
+from settings_admin.utils import overwrite_settings
+
 
 class FakeModelClass(MediaDefiningClass):
     @property
@@ -40,7 +42,10 @@ class SettingsAdmin(admin.ModelAdmin, metaclass=FakeModelClass):
     @csrf_protect_m
     def changelist_view(self, request, extra_context=None):
         if request.method == 'POST':
-            print('yay')
+            options = {k: type(v)(request.POST.get(k, v))
+                       for k, v in inspect.getmembers(settings)
+                       if isinstance(v, (int, float, str))}
+            overwrite_settings(options)
         context = self.get_extra_context(request)
         if extra_context:
             context.update(extra_context)
